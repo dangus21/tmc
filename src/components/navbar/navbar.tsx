@@ -1,3 +1,4 @@
+import { Dropdown } from "@/components/ui";
 import { Profile } from "../ui/profile";
 import { titilium } from "@/constants";
 import { usePathname } from "next/navigation";
@@ -14,9 +15,10 @@ function Navbar() {
 			</h1>
 			<div className="content-center justify-self-center">
 				{includesTable && (
-					<select>
-						<option value="1">1</option>
-					</select>
+					<Dropdown
+						id="insurance_table_selector"
+						name="insurance_table_selector"
+					/>
 				)}
 			</div>
 			<Profile />
