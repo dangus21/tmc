@@ -17,11 +17,12 @@ function Dropdown(props: DropdownProps) {
 				tables.setCurrentTable(event.target.value);
 				tables.getTable(event.target.value);
 			}}
+			value={tables.value}
 		>
 			<option selected hidden>
-				Select a value
+				Select a table
 			</option>
-			<option>None</option>
+			<option value="None">No table selected</option>
 			{tables.availableTables.map((table, index) => (
 				<option key={`${table}-${index}`} value={table}>
 					{table}

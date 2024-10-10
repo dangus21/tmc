@@ -5,7 +5,9 @@ function Page(props: React.PropsWithChildren) {
 	return (
 		<>
 			<Navbar />
-			{props.children}
+			<main className="mt-12 flex h-[calc(100vh-80px)] w-screen justify-center">
+				{props.children}
+			</main>
 			<Footer />
 		</>
 	);

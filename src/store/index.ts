@@ -1,10 +1,11 @@
+import { Table } from "@/pages/api/tables/[table]";
 import { create } from "zustand";
 import { mountStoreDevtool } from "simple-zustand-devtools";
 
 export type SeguradoraState = {
 	tables: {
 		value: string;
-		table: unknown | null;
+		table: Table;
 		availableTables: string[];
 		setCurrentTable: (tableId: string) => void;
 		getTables: () => void;
@@ -15,7 +16,10 @@ export type SeguradoraState = {
 const useSeguradoraState = create<SeguradoraState>((set, get) => ({
 	tables: {
 		value: "Select a table",
-		table: null,
+		table: {
+			headers: [],
+			values: []
+		},
 		availableTables: [],
 		setCurrentTable(tableId) {
 			set((state) => ({
@@ -41,16 +45,25 @@ const useSeguradoraState = create<SeguradoraState>((set, get) => ({
 		},
 		async getTable(tableId) {
 			if (tableId === "None") {
+				set((state) => ({
+					tables: {
+						...state.tables,
+						table: {
+							headers: [],
+							values: []
+						}
+					}
+				}));
 				return;
 			}
 
 			const res = await fetch(`/api/tables/${tableId}.xlsx`);
-			const tablesList = await res.json();
+			const tablesList = (await res.json()) as { data: Table };
 
 			set((state) => ({
 				tables: {
 					...state.tables,
-					table: tablesList.files
+					table: tablesList.data
 				}
 			}));
 		}

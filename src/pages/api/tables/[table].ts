@@ -1,73 +1,79 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { detectDataType, splitIntoChunks } from "@/utils";
 import XLSX from "xlsx";
 import path from "node:path";
 import type { NextApiRequest, NextApiResponse } from "next";
-type Table =
-	| {
-			title: string;
-			values: string[];
-	  }[]
-	| [];
+
+export type Table = {
+	headers: [string, string][];
+	values: [number, [string, string][]][];
+};
 
 export default function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<{ data: Table }>
 ) {
 	const { table } = req.query;
-	if (!table) {
-		res.status(400);
+	if (!table || typeof table !== "string") {
+		res.status(400).json({ data: { headers: [], values: [] } });
 		return;
 	}
 
-	const currentXLSXFile = path.resolve(
-		path.join("./public/tables", table?.toString())
-	);
+	const currentXLSXFile = path.resolve(path.join("./public/tables", table));
 
-	const workbook = XLSX.readFile(currentXLSXFile);
-	const worksheet = workbook.Sheets.Folha1;
-	console.log("LOG ~ worksheet:", worksheet);
+	try {
+		const workbook = XLSX.readFile(currentXLSXFile);
+		const worksheet = workbook.Sheets.Folha1;
 
-	if (worksheet["!ref"]) {
-		delete worksheet["!ref"];
+		if (worksheet["!ref"]) {
+			delete worksheet["!ref"];
+		}
+
+		if (worksheet["!margins"]) {
+			delete worksheet["!margins"];
+		}
+
+		const worksheetEntries = Object.entries(worksheet);
+		const worksheetMaxSide = Math.floor(Math.sqrt(worksheetEntries.length));
+
+		const chunkedWorksheet = splitIntoChunks(
+			worksheetEntries,
+			worksheetMaxSide
+		);
+
+		const mappedWorksheet: [string, string][][] = chunkedWorksheet.map(
+			(chunk) =>
+				chunk.map((element): [string, string] => {
+					const [, cell] = element as [string, XLSX.CellObject];
+					const value = cell.w || "";
+					return [value, detectDataType(value)];
+				})
+		);
+
+		const transformedData: Table = mappedWorksheet.reduce<Table>(
+			(
+				result: Table,
+				current: [string, string][],
+				index: number
+			): Table => {
+				if (index === 0) {
+					// Handle headers
+					return {
+						...result,
+						headers: current
+					};
+				}
+				// Handle data rows
+				return {
+					...result,
+					values: [...result.values, [index - 1, current]]
+				};
+			},
+			{ headers: [], values: [] }
+		);
+
+		res.status(200).json({ data: transformedData });
+	} catch (error) {
+		console.error("Error processing XLSX file:", error);
+		res.status(500).json({ data: { headers: [], values: [] } });
 	}
-
-	if (worksheet["!margins"]) {
-		delete worksheet["!margins"];
-	}
-	const worksheetEntries = Object.entries(worksheet);
-	const worksheetMaxSide = Math.sqrt(worksheetEntries.length);
-
-	function splitIntoChunks<T>(array: T[], chunkSize: number = 4): T[][] {
-		return array.reduce((resultArray: T[][], item: T, index: number) => {
-			const chunkIndex = Math.floor(index / chunkSize);
-
-			if (!resultArray[chunkIndex]) {
-				resultArray[chunkIndex] = []; // Start a new chunk
-			}
-
-			resultArray[chunkIndex].push(item);
-			return resultArray;
-		}, []);
-	}
-
-	const chunkedWorksheet = splitIntoChunks(
-		worksheetEntries,
-		worksheetMaxSide
-	);
-
-	const mappedWorksheet = chunkedWorksheet.map((chunk) =>
-		chunk.map(
-			(element) =>
-				(
-					element as unknown as Record<string, Record<string, string>>
-				)[1].w
-		)
-	);
-
-	const transformedData = mappedWorksheet[0].map((title, index) => ({
-		title,
-		values: mappedWorksheet.slice(1).map((row) => row[index])
-	}));
-
-	res.status(200).json({ data: transformedData });
 }
