@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Page } from "@/components";
 import { componentForDataType } from "@/lib/utils";
+import { titilium } from "@/constants";
 import { twMerge } from "tailwind-merge";
 import { useEffect, useState } from "react";
 import { useSeguradoraState } from "@/store";
@@ -124,18 +125,6 @@ export default function Home() {
 														}
 													})
 												) : (
-													// <input
-													// 	key={`${lineNumber}-${valueIndex}`}
-													// 	style={{
-													// 		width: `calc(100% / ${currentlyDisplayedTable.headers.length})`
-													// 	}}
-													// 	className={twMerge(
-													// 		valueIndex > 0 &&
-													// 			"text-end",
-													// 		"text-md -m-[0.5px] flex p-2 shadow-[inset_0px_0px_0px_1px_#1a202c] transition-all hover:bg-primary/5"
-													// 	)}
-													// 	defaultValue={value}
-													// />
 													<p
 														key={`${lineNumber}-${valueIndex}`}
 														style={{
@@ -157,7 +146,9 @@ export default function Home() {
 						</div>
 					) : (
 						<div className="grid h-96 w-96 place-items-center">
-							<h1>Please select a table above</h1>
+							<h1 className={`${titilium.className} text-2xl`}>
+								Please select a table above
+							</h1>
 						</div>
 					)}
 				</div>

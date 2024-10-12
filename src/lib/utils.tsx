@@ -6,6 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 import { DatePicker } from "@/components/ui/datepicker";
+import { DropdownBoolean } from "@/components/ui";
 import dayjs from "dayjs";
 
 export type TypeOutput = "string" | "date" | "boolean" | "currency" | null;
@@ -69,6 +70,31 @@ function componentForDataType({
 			</div>
 		);
 	}
+	if (dataType === "boolean") {
+		return (
+			<div
+				className={twMerge(
+					"text-md -m-[0.5px] flex p-2 shadow-[inset_0px_0px_0px_1px_#1a202c] transition-all hover:bg-primary/5"
+				)}
+				style={{
+					width: `calc(100% / ${props.headersAmount})`
+				}}
+			>
+				<DropdownBoolean
+					id="table-boolean-select"
+					name="table-boolean-select"
+					value={props.value}
+					onChange={(event) =>
+						props.onChange(
+							props.lineNumber,
+							props.valueIndex,
+							event
+						)
+					}
+				/>
+			</div>
+		);
+	}
 	return (
 		<input
 			key={`${props.lineNumber}-${props.valueIndex}`}
@@ -79,7 +105,7 @@ function componentForDataType({
 				props.valueIndex > 0 && "text-end",
 				"text-md -m-[0.5px] flex p-2 shadow-[inset_0px_0px_0px_1px_#1a202c] transition-all hover:bg-primary/5"
 			)}
-			defaultValue={props.value}
+			value={props.value}
 			onChange={(event) =>
 				props.onChange(
 					props.lineNumber,

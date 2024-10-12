@@ -10,6 +10,7 @@ import {
 	DropdownMenuTrigger
 } from "@/components/ui";
 import { User } from "lucide-react";
+import Link from "next/link";
 
 function Profile() {
 	return (
@@ -17,10 +18,7 @@ function Profile() {
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Avatar className="h-8 w-8 cursor-pointer">
-						<AvatarImage
-							src="/placeholder.svg?height=40&width=40"
-							alt="Profile"
-						/>
+						<AvatarImage alt="Profile" />
 						<AvatarFallback>
 							<User className="h-6 w-6 text-primary" />
 						</AvatarFallback>
@@ -29,9 +27,11 @@ function Profile() {
 				<DropdownMenuContent className="w-56" align="end">
 					<DropdownMenuLabel>My Account</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem className="cursor-pointer">
-						Settings
-					</DropdownMenuItem>
+					<Link href="/profile">
+						<DropdownMenuItem className="cursor-pointer">
+							Settings
+						</DropdownMenuItem>
+					</Link>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>
