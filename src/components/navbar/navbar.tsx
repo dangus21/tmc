@@ -9,7 +9,7 @@ function Navbar() {
 	const includesTable = currentPath !== "/profile";
 
 	return (
-		<nav className="fixed top-0 grid h-12 w-full grid-cols-3 content-center bg-sky-700 px-2 py-1 text-white">
+		<nav className="fixed top-0 grid h-12 w-full grid-cols-3 content-center bg-primary px-2 py-1 text-white">
 			<h1 className={`${titilium.className} text-2xl`}>
 				<Link href="/">Seguradora S.A.&copy;</Link>
 			</h1>

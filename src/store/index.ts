@@ -1,15 +1,22 @@
 import { Table } from "@/pages/api/tables/[table]";
 import { create } from "zustand";
+import { detectDataType } from "@/lib/utils";
 import { mountStoreDevtool } from "simple-zustand-devtools";
+import { produce } from "immer";
 
 export type SeguradoraState = {
 	tables: {
 		value: string;
 		table: Table;
+		tableEdit: Table;
 		availableTables: string[];
 		setCurrentTable: (tableId: string) => void;
 		getTables: () => void;
 		getTable: (tableId: string) => void;
+		insertRow: () => void;
+		editRow: (rowIndex: number, cellIndex: number, value: string) => void;
+		discardChanges: () => void;
+		confirmChanges: () => void;
 	};
 };
 
@@ -17,6 +24,10 @@ const useSeguradoraState = create<SeguradoraState>((set, get) => ({
 	tables: {
 		value: "Select a table",
 		table: {
+			headers: [],
+			values: []
+		},
+		tableEdit: {
 			headers: [],
 			values: []
 		},
@@ -63,9 +74,56 @@ const useSeguradoraState = create<SeguradoraState>((set, get) => ({
 			set((state) => ({
 				tables: {
 					...state.tables,
-					table: tablesList.data
+					table: tablesList.data,
+					tableEdit: tablesList.data
 				}
 			}));
+		},
+		insertRow() {
+			set(
+				produce((state: SeguradoraState) => {
+					state.tables.tableEdit.values = [
+						...state.tables.tableEdit.values,
+						[
+							state.tables.tableEdit.values.length,
+							get().tables.table.headers.map(() => ["", "string"])
+						]
+					];
+				})
+			);
+		},
+		editRow(rowIndex, cellIndex, value) {
+			console.log({
+				rowIndex,
+				cellIndex,
+				value,
+				t: get().tables.tableEdit.values[rowIndex][1]
+			});
+			set(
+				produce((state: SeguradoraState) => {
+					state.tables.tableEdit.values[rowIndex][1][cellIndex][0] =
+						value;
+					state.tables.tableEdit.values[rowIndex][1][cellIndex][1] =
+						detectDataType(value);
+				})
+			);
+		},
+		discardChanges() {
+			set(
+				produce((state: SeguradoraState) => {
+					state.tables.tableEdit = {
+						...get().tables.table,
+						values: get().tables.table.values
+					};
+				})
+			);
+		},
+		confirmChanges() {
+			set(
+				produce((state: SeguradoraState) => {
+					state.tables.table = state.tables.tableEdit;
+				})
+			);
 		}
 	}
 }));

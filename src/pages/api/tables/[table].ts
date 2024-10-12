@@ -1,11 +1,11 @@
-import { detectDataType, splitIntoChunks } from "@/utils";
+import { TypeOutput, detectDataType, splitIntoChunks } from "@/lib/utils";
 import XLSX from "xlsx";
 import path from "node:path";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export type Table = {
-	headers: [string, string][];
-	values: [number, [string, string][]][];
+	headers: [string, TypeOutput][];
+	values: [number, [string, TypeOutput][]][];
 };
 
 export default function handler(
@@ -40,9 +40,9 @@ export default function handler(
 			worksheetMaxSide
 		);
 
-		const mappedWorksheet: [string, string][][] = chunkedWorksheet.map(
+		const mappedWorksheet: [string, TypeOutput][][] = chunkedWorksheet.map(
 			(chunk) =>
-				chunk.map((element): [string, string] => {
+				chunk.map((element): [string, TypeOutput] => {
 					const [, cell] = element as [string, XLSX.CellObject];
 					const value = cell.w || "";
 					return [value, detectDataType(value)];
@@ -52,17 +52,15 @@ export default function handler(
 		const transformedData: Table = mappedWorksheet.reduce<Table>(
 			(
 				result: Table,
-				current: [string, string][],
+				current: [string, TypeOutput][],
 				index: number
 			): Table => {
 				if (index === 0) {
-					// Handle headers
 					return {
 						...result,
 						headers: current
 					};
 				}
-				// Handle data rows
 				return {
 					...result,
 					values: [...result.values, [index - 1, current]]

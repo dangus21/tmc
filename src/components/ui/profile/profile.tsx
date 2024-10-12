@@ -22,18 +22,16 @@ function Profile() {
 							alt="Profile"
 						/>
 						<AvatarFallback>
-							<User className="h-6 w-6 text-sky-700" />
+							<User className="h-6 w-6 text-primary" />
 						</AvatarFallback>
 					</Avatar>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent className="w-56" align="end">
 					<DropdownMenuLabel>My Account</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem>Profile</DropdownMenuItem>
-					<DropdownMenuItem>Settings</DropdownMenuItem>
-					<DropdownMenuItem>Notifications</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem>Log out</DropdownMenuItem>
+					<DropdownMenuItem className="cursor-pointer">
+						Settings
+					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>

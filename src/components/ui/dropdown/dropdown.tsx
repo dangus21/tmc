@@ -19,9 +19,6 @@ function Dropdown(props: DropdownProps) {
 			}}
 			value={tables.value}
 		>
-			<option selected hidden>
-				Select a table
-			</option>
 			<option value="None">No table selected</option>
 			{tables.availableTables.map((table, index) => (
 				<option key={`${table}-${index}`} value={table}>
