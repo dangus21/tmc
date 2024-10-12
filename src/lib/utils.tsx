@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 import { DatePicker } from "@/components/ui/datepicker";
 import dayjs from "dayjs";
 
-export type TypeOutput = "string" | "date" | "boolean" | "currency";
+export type TypeOutput = "string" | "date" | "boolean" | "currency" | null;
 function extractNumber(str: string): number | boolean {
 	const cleaned = str.replace(/[^\d.,]/g, "");
 	const normalized = cleaned.replace(",", ".");
@@ -57,7 +57,7 @@ function componentForDataType({
 				}}
 			>
 				<DatePicker
-					date={props.value}
+					date={props.value ?? new Date()}
 					onChange={(date) =>
 						props.onChange(
 							props.lineNumber,

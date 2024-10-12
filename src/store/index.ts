@@ -1,6 +1,5 @@
 import { Table } from "@/pages/api/tables/[table]";
 import { create } from "zustand";
-import { detectDataType } from "@/lib/utils";
 import { mountStoreDevtool } from "simple-zustand-devtools";
 import { produce } from "immer";
 
@@ -25,11 +24,13 @@ const useSeguradoraState = create<SeguradoraState>((set, get) => ({
 		value: "Select a table",
 		table: {
 			headers: [],
-			values: []
+			values: [],
+			dataTypes: []
 		},
 		tableEdit: {
 			headers: [],
-			values: []
+			values: [],
+			dataTypes: []
 		},
 		availableTables: [],
 		setCurrentTable(tableId) {
@@ -61,7 +62,8 @@ const useSeguradoraState = create<SeguradoraState>((set, get) => ({
 						...state.tables,
 						table: {
 							headers: [],
-							values: []
+							values: [],
+							dataTypes: []
 						}
 					}
 				}));
@@ -86,25 +88,17 @@ const useSeguradoraState = create<SeguradoraState>((set, get) => ({
 						...state.tables.tableEdit.values,
 						[
 							state.tables.tableEdit.values.length,
-							get().tables.table.headers.map(() => ["", "string"])
+							get().tables.table.headers.map(() => ["", null])
 						]
 					];
 				})
 			);
 		},
 		editRow(rowIndex, cellIndex, value) {
-			console.log({
-				rowIndex,
-				cellIndex,
-				value,
-				t: get().tables.tableEdit.values[rowIndex][1]
-			});
 			set(
 				produce((state: SeguradoraState) => {
 					state.tables.tableEdit.values[rowIndex][1][cellIndex][0] =
 						value;
-					state.tables.tableEdit.values[rowIndex][1][cellIndex][1] =
-						detectDataType(value);
 				})
 			);
 		},

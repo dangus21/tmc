@@ -1,11 +1,13 @@
 import { TypeOutput, detectDataType, splitIntoChunks } from "@/lib/utils";
 import XLSX from "xlsx";
+import dayjs from "dayjs";
 import path from "node:path";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export type Table = {
 	headers: [string, TypeOutput][];
 	values: [number, [string, TypeOutput][]][];
+	dataTypes: TypeOutput[];
 };
 
 export default function handler(
@@ -14,7 +16,9 @@ export default function handler(
 ) {
 	const { table } = req.query;
 	if (!table || typeof table !== "string") {
-		res.status(400).json({ data: { headers: [], values: [] } });
+		res.status(400).json({
+			data: { headers: [], values: [], dataTypes: [] }
+		});
 		return;
 	}
 
@@ -45,7 +49,13 @@ export default function handler(
 				chunk.map((element): [string, TypeOutput] => {
 					const [, cell] = element as [string, XLSX.CellObject];
 					const value = cell.w || "";
-					return [value, detectDataType(value)];
+					const isValueDate = detectDataType(value) === "date";
+					return [
+						isValueDate
+							? dayjs(value).format("DD/MM/YYYY").toString()
+							: value,
+						detectDataType(value)
+					];
 				})
 		);
 
@@ -55,23 +65,34 @@ export default function handler(
 				current: [string, TypeOutput][],
 				index: number
 			): Table => {
+				// handle headers
 				if (index === 0) {
 					return {
 						...result,
 						headers: current
 					};
 				}
+				// handle dataTypes
+				if (index === 1) {
+					const availableDataTypes = current.map(
+						([, dataType]) => dataType
+					);
+					result.dataTypes = availableDataTypes;
+				}
+				// handle values
 				return {
 					...result,
 					values: [...result.values, [index - 1, current]]
 				};
 			},
-			{ headers: [], values: [] }
+			{ headers: [], values: [], dataTypes: [] }
 		);
 
 		res.status(200).json({ data: transformedData });
 	} catch (error) {
 		console.error("Error processing XLSX file:", error);
-		res.status(500).json({ data: { headers: [], values: [] } });
+		res.status(500).json({
+			data: { headers: [], values: [], dataTypes: [] }
+		});
 	}
 }

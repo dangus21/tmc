@@ -37,7 +37,7 @@ function DatePicker({
 				<Calendar
 					mode="single"
 					selected={calendarDate}
-					onSelect={(date) => {
+					onSelect={function (date) {
 						setCalendarDate(date);
 						onChange(date);
 					}}

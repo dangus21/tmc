@@ -108,7 +108,12 @@ export default function Home() {
 											([value, valueType], valueIndex) =>
 												editMode ? (
 													componentForDataType({
-														dataType: valueType,
+														dataType: valueType
+															? valueType
+															: currentlyDisplayedTable
+																	.dataTypes[
+																	valueIndex
+																],
 														props: {
 															headersAmount,
 															lineNumber,
